@@ -8,8 +8,8 @@ storychar = 0;
 speed = 60;
 story = ["...",
 "Youve made a horrible mistake, coming here.",
-"I am the guardian of this secret, if you hope to retrieve it, you will have to get through me",
-"I was kinda hoping it wouldnt come down to this, but alas, looks like you will experience my drip"
+"We both know why youre here, and we both know you arent leaving until you get it",
+"Maybe you should try arriving with some bitches next time dumbass"
 ]
 images = ["https://media.discordapp.net/attachments/623381118552375313/812210903566516224/MOSTIMA_DRIP_3.png?width=319&height=558", 
 "https://media.discordapp.net/attachments/623381118552375313/812210895181709333/MOSTIMA_DRIP.png?width=319&height=558",
@@ -108,7 +108,7 @@ gameCreate = function(){
 	document.addEventListener('keydown', keydown);
 	document.addEventListener('keyup', keyup);
 	new Player(50,50);
-	new TextBox(400,300);
+	//new TextBox(400,300);
 }
 
 gameRefresh = function(){
@@ -126,7 +126,8 @@ addToStepList = function(gameObject){
 	gameObjects.push(gameObject);
 }
 
-class gameObject{
+
+class GameObject{
 	x = 0;
 	y = 0;
 	width = 0;
@@ -144,13 +145,21 @@ class gameObject{
 	drawSelf(){
 		game.drawImage(this.sprite,this.x,this.y,this.width,this.height);
 	}
+	//thanks https://stackoverflow.com/questions/3793397/html5-canvas-drawimage-with-at-an-angle
+	rotateAndPaintImage = function( context, image, angleInRad , positionX, positionY, axisX, axisY ) {
+		context.translate( positionX, positionY );
+		context.rotate( angleInRad );
+		context.drawImage( image, -axisX, -axisY );
+		context.rotate( -angleInRad );
+		context.translate( -positionX, -positionY );
+	}
 	draw = function(){return;};
 	step = function(){return;};
 
 
 }
 
-class Player extends gameObject{
+class Player extends GameObject{
 	speed = 3;
 	constructor(_x,_y){
 		super(_x,_y);	
@@ -172,9 +181,12 @@ class Player extends gameObject{
 	blueMove = function(){//blue heart from undytale
 
 	}
+	UIMove = function(){
+
+	}
 
 }
-class TextBox extends gameObject{
+class TextBox extends GameObject{
 	targetw = 1000;//must be divisible by 20
 	targeth = 200;
 	constructor(_x,_y){
@@ -184,6 +196,14 @@ class TextBox extends gameObject{
 		
 	}
 	step = function(){
+		return;
+	}
+	draw = function(){
+		game.fillStyle = "black";
+		game.fillRect(this.x-(this.width/4),this.y-(this.height/4),this.width/2,this.height/2); 
+		game.strokeStyle = "white";
+		game.lineWidth = 4;
+		game.strokeRect(this.x-(this.width/4),this.y-(this.height/4),this.width/2,this.height/2);
 		if(this.width != this.targetw || this.height != this.targeth){
 			this.width += Math.sign(this.targetw-this.width)*20;
 			this.height += Math.sign(this.targeth-this.height)*20;
@@ -191,15 +211,19 @@ class TextBox extends gameObject{
 		else{
 			game.font = "17px elfont";
 			game.fillStyle = "white"
-			game.fillText("*  You feel like youre going to have a bad time",this.x-this.width/4+10,this.y-this.height/4+30);
+			game.fillText("*  Mostima is dripping",this.x-this.width/4+10,this.y-this.height/4+30);
 		}
-	}
-	draw = function(){
-		game.strokeStyle = "white";
-		game.lineWidth = 4;
-		game.strokeRect(this.x-(this.width/4),this.y-(this.height/4),this.width/2,this.height/2);
 		
 	}
+}
+class BulletBoard extends GameObject{
+
+}
+class MostimaSecondSkill extends GameObject{
+
+}
+class MostimaThirdSkill extends GameObject{
+
 }
 
 
@@ -231,3 +255,4 @@ img {
 <canvas id="canvas" width="0" height="0" style="center"> </canvas>
 <img src = "https://media.discordapp.net/attachments/623381118552375313/812210920306376734/MOSTIMA_DRIP_SANS.png?width=319&height=558" id="mos" class = "center"></img>
 <p id = "textbox" class = "center"> </p>
+</html>
