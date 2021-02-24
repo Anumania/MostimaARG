@@ -64,7 +64,7 @@ ongo = function(b){
 time_for_game = function(){//kill everything and get the canvas started.
 	document.getElementById("mos").src = " ";
 	document.getElementById("mos").style.opacity = 0;
-	document.getElementById("textbox").innerHTML = "stop snooping wait for me to finish my shit before lookingx`";
+	document.getElementById("textbox").innerHTML = "stop snooping wait for me to finish my shit before looking";
 	document.getElementById("canvas").width = 800;
 	document.getElementById("canvas").height = 400;
 	window.onclick = function(){}
@@ -168,8 +168,7 @@ class Player extends GameObject{
 		super(_x,_y);
 		this.state = this.redMove;
 		for(var j = 0; j < gameObjects.length; j++){
-			if(gameObjects[j].__proto__.constructor === BulletBoard){
-				console.log(gameObjects[j]);
+			if(gameObjects[j].__proto__.constructor == BulletBoard){
 				this.bulletBoard = gameObjects[j];
 			} 
 		}
@@ -187,9 +186,10 @@ class Player extends GameObject{
 		if(gameKeys[ord("i")]){this.y-=this.speed};
 		if(gameKeys[ord("l")]){this.x+=this.speed};
 		if(gameKeys[ord("k")]){this.y+=this.speed};
+		if(gameKeys[ord("p")]){new Bullet(this.x,this.y,Math.random()*360);};
 
-		this.x = Util.Clamp(this.x,this.bulletBoard.x, this.bulletBoard.x+this.bulletBoard.width);
-		this.y = Util.Clamp(this.y,this.bulletBoard.y, this.bulletBoard.y+this.bulletBoard.height);
+		this.x = Util.Clamp(this.x,this.bulletBoard.x+3, this.bulletBoard.x+this.bulletBoard.width-this.width-3);
+		this.y = Util.Clamp(this.y,this.bulletBoard.y+3, this.bulletBoard.y+this.bulletBoard.height-this.height-3);
 	}
 	blueMove = function(){//blue heart from undytale
 
@@ -231,9 +231,9 @@ class TextBox extends GameObject{
 }
 class BulletBoard extends GameObject{
 	step = function(){
-		this.x = 300;
+		this.x = 250;
 		this.width = 300;
-		this.y = 300;
+		this.y = 90;
 		this.height = 300;
 	}
 	draw = function(){
@@ -250,10 +250,35 @@ class MostimaSecondSkill extends GameObject{
 class MostimaThirdSkill extends GameObject{
 
 }
+class Bullet extends GameObject{
+	dir = 0;
+	speed = 0;
+
+	constructor(_x,_y, _dir,_step = null){
+		super(_x,_y)
+		//this.step = _step;
+		this.dir = _dir;
+		if(_step != null){
+			this.step = _step;
+		}
+	}
+	draw = function(){
+		this.rotateAndPaintImage(game,this.sprite,this.dir/Util.Rad2Deg,this.x,this.y,this.width/2,this.height/2)
+	}
+	step = function(){
+		this.x+=Math.cos(this.dir/Util.Rad2Deg);
+		this.y+=Math.sin(this.dir/Util.Rad2Deg);
+	}
+}
+class Hurtbox{
+
+
+}
 class Util{
 	static Clamp(val,min,max){
-		return Math.max(Math.min(val,min),max);
+		return Math.min(Math.max(val,min),max);
 	} 
+	static Rad2Deg = 57.2958;
 }
 
 
