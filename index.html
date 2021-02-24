@@ -7,18 +7,21 @@ storypart = 0;
 storychar = 0;
 speed = 60;
 story = ["...",
-"youve made a horrible mistake, coming here.",
-
-"i am the guardian of this secret, if you hope to retrieve it, you will have to destroy me",
-
+"Youve made a horrible mistake, coming here.",
+"I am the guardian of this secret, if you hope to retrieve it, you will have to get through me",
+"I was kinda hoping it wouldnt come down to this, but alas, looks like you will experience my drip"
 ]
 images = ["https://media.discordapp.net/attachments/623381118552375313/812210903566516224/MOSTIMA_DRIP_3.png?width=319&height=558", 
 "https://media.discordapp.net/attachments/623381118552375313/812210895181709333/MOSTIMA_DRIP.png?width=319&height=558",
 "https://media.discordapp.net/attachments/623381118552375313/812210813984833546/MOSTIMA_DRIP_2.png?width=319&height=558",
 "https://media.discordapp.net/attachments/623381118552375313/812210920306376734/MOSTIMA_DRIP_SANS.png?width=319&height=558"]
 count = 0;
+img = 0;
+inter = 0;
 window.onload = function(){
-	setInterval(refresh, 1000/60);
+	interv = setInterval(refresh, 1000/60);
+	loadImages();
+	
 }
 
 refresh = function(){
@@ -35,30 +38,184 @@ refresh = function(){
 	}
 	if(mosawake){
 		document.getElementById("textbox").innerHTML = story[storypart].substring(0,storychar)
-		
-		
 
 	}
 	switch(storypart){
 		 case 0: document.getElementById("mos").src = images[0]; break;
 		 case 1: document.getElementById("mos").src = images[2]; speed = 5;  break;
 		 case 2: document.getElementById("mos").src = images[0]; break;
+		 case 2: document.getElementById("mos").src = images[1]; break;
 		}
-		
+	if(storychar >= story[storypart].length && storypart == story.length-1){ //if the vn part is done, we go.
+		time_for_game();
+	}
 }
-ongo = function(){
+ongo = function(b){
 	if(mosawake && storychar >= story[storypart].length){
 		if(story.length > storypart){
 			storychar = 0;
 			storypart++;
 		}
 	}
+	if(b.code == "Digit9"){ //skip for debugging
+		time_for_game();
+	}
+}
+time_for_game = function(){//kill everything and get the canvas started.
+	document.getElementById("mos").src = " ";
+	document.getElementById("mos").style.opacity = 0;
+	document.getElementById("textbox").innerHTML = "";
+	document.getElementById("canvas").width = 800;
+	document.getElementById("canvas").height = 400;
+	window.onclick = function(){}
+	clearInterval(interv);
+	document.removeEventListener('keypress', ongo);
+	gameCreate();
 }
 window.onclick = ongo;
-window.onkeypress = ongo;
+document.addEventListener('keypress', ongo);
+
+
+
+loadImages = function(){ //this lets the images load while the vn is happenin.
+	sprites["soul"] = newImage("Red_SOUL_sprite.png");
+}
+newImage = function(str){
+	var n = new Image();
+	n.src = str;
+	return n;
+}
+sprites = new Map();
+loopTimer = 0;
+canvas = 0;
+game = 0;
+gameObjects = [];
+gameKeys = new Array(200);//every key and then some
+function ord(str){return str.toLowerCase().charCodeAt(0);}
+function chr(num){return String.fromCharCode(num);}
+keydown = function(_key){
+	gameKeys[ord(_key.key)] = true;
+}
+keyup = function(_key){
+	gameKeys[ord(_key.key)] = false;
+}
+gameCreate = function(){
+	document.body.style.backgroundColor = 0x000000
+	canvas = document.getElementById("canvas");
+	game = canvas.getContext("2d");
+	loopTimer = setInterval(gameRefresh, 1000/60);
+	canvas.style = "position:absolute; margin-top: 150px;left: 50%; width: 800px; margin-left: -400px";
+	document.addEventListener('keydown', keydown);
+	document.addEventListener('keyup', keyup);
+	new Player(50,50);
+	new TextBox(400,300);
+}
+
+gameRefresh = function(){
+	//event.keyCode
+	game.fillStyle = "black"; //wipe screen.
+	game.fillRect(0,0,800,600);
+	for(i = 0; i < gameObjects.length; i++){//step
+		gameObjects[i].step();
+	}
+	for(i = 0; i < gameObjects.length; i++){//draw
+		gameObjects[i].draw();
+	}
+}
+addToStepList = function(gameObject){
+	gameObjects.push(gameObject);
+}
+
+class gameObject{
+	x = 0;
+	y = 0;
+	width = 0;
+	height = 0;
+	sprite = 0;
+	constructor(_x,_y){
+		this.x = _x;
+		this.y = _y;
+		this.width = 16;
+		this.height = 16;
+		this.sprite = sprites["soul"];//this needs to be replaced or you will always be soul;
+		addToStepList(this);
+	}
+
+	drawSelf(){
+		game.drawImage(this.sprite,this.x,this.y,this.width,this.height);
+	}
+	draw = function(){return;};
+	step = function(){return;};
+
+
+}
+
+class Player extends gameObject{
+	speed = 3;
+	constructor(_x,_y){
+		super(_x,_y);	
+	}
+	step = function(){
+		this.redMove();
+	}
+	draw = function(){
+		game.fillStyle = "green";
+		this.drawSelf();
+	}
+
+	redMove = function(){ //red heart from undytale
+		if(gameKeys[ord("j")]){this.x-=this.speed};
+		if(gameKeys[ord("i")]){this.y-=this.speed};
+		if(gameKeys[ord("l")]){this.x+=this.speed};
+		if(gameKeys[ord("k")]){this.y+=this.speed};
+	}
+	blueMove = function(){//blue heart from undytale
+
+	}
+
+}
+class TextBox extends gameObject{
+	targetw = 1000;//must be divisible by 20
+	targeth = 200;
+	constructor(_x,_y){
+		super(_x,_y);
+		this.width = 0;
+		this.height =0;
+		
+	}
+	step = function(){
+		if(this.width != this.targetw || this.height != this.targeth){
+			this.width += Math.sign(this.targetw-this.width)*20;
+			this.height += Math.sign(this.targeth-this.height)*20;
+		}
+		else{
+			game.font = "17px elfont";
+			game.fillStyle = "white"
+			game.fillText("*  You feel like youre going to have a bad time",this.x-this.width/4+10,this.y-this.height/4+30);
+		}
+	}
+	draw = function(){
+		game.strokeStyle = "white";
+		game.lineWidth = 4;
+		game.strokeRect(this.x-(this.width/4),this.y-(this.height/4),this.width/2,this.height/2);
+		
+	}
+}
+
+
+
+
+
+//game time
+
 
 </script>
+
 <style>
+@font-face {
+font-family: 'elfont';
+src: url('font1.ttf');
+}
 .center {
   display: block;
   margin-left: auto;
@@ -71,5 +228,6 @@ img {
   opacity: 0.0;
 }
 </style>
+<canvas id="canvas" width="0" height="0" style="center"> </canvas>
 <img src = "https://media.discordapp.net/attachments/623381118552375313/812210920306376734/MOSTIMA_DRIP_SANS.png?width=319&height=558" id="mos" class = "center"></img>
-<p id = "textbox" class = "center"> </head>
+<p id = "textbox" class = "center"> </p>
