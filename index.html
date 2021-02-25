@@ -18,7 +18,9 @@ story = ["...",
 "I dont know if you know this, but i tend to win by any means necessary",
 "Give up, im among bitches and you arent.",
 "If you keep pestering me, im gonna have to kick your ass",
-"How about instead of bothering me you go bother some bitches dumbass"
+"How about instead of bothering me you go bother some bitches dumbass",
+"Hey you wanna know a secret?",
+"Im the imposter"
 ]
 images = ["https://media.discordapp.net/attachments/623381118552375313/812210903566516224/MOSTIMA_DRIP_3.png?width=319&height=558", 
 "https://media.discordapp.net/attachments/623381118552375313/812210895181709333/MOSTIMA_DRIP.png?width=319&height=558",
@@ -54,6 +56,7 @@ refresh = function(){
 		 case 1: document.getElementById("mos").src = images[2]; speed = 5;  break;
 		 case 2: document.getElementById("mos").src = images[0]; break;
 		 case 2: document.getElementById("mos").src = images[1]; break;
+		 case 7: document.getElementById("mos").src = images[3]; break; 
 		}
 	if(storychar >= story[storypart].length && storypart == story.length-1){ //if the vn part is done, we go.
 		time_for_game();
@@ -73,7 +76,7 @@ ongo = function(b){
 time_for_game = function(){//kill everything and get the canvas started.
 	document.getElementById("mos").src = " ";
 	document.getElementById("mos").style.opacity = 0;
-	document.getElementById("textbox").innerHTML = "stop snooping wait for me to finish my shit before looking";
+	document.getElementById("textbox").innerHTML = " ";
 	document.getElementById("canvas").width = 800;
 	document.getElementById("canvas").height = 400;
 	window.onclick = function(){}
