@@ -5,7 +5,7 @@ mosawake = false;
 transparency = 0;
 storypart = 0;
 storychar = 0;
-speed = 60;
+speed = 5;
 flavor_text = 
 ["get this, he turns himself into a pickle",
 "mostima looks like shes gonna win by any means necessary",
@@ -87,6 +87,10 @@ document.addEventListener('keypress', ongo);
 loadImages = function(){ //this lets the images load while the vn is happenin.
 	sprites["soul"] = newImage("Red_SOUL_sprite.png");
 	sprites["bullet"] = newImage("bullet.png")
+	sprites["hp"] = newImage("hp.png");
+	sprites["crackedhp"] = newImage("brokenhp.png");
+	sprites["arrow"] = newImage("arrow.png");
+	sprites["green"] = newImage("Green_SOUL_sprite.png");
 }
 newImage = function(str){
 	var n = new Image();
@@ -115,10 +119,8 @@ gameCreate = function(){
 	canvas.style = "position:absolute; margin-top: 150px;left: 50%; width: 800px; margin-left: -400px";
 	document.addEventListener('keydown', keydown);
 	document.addEventListener('keyup', keyup);
-	new BulletBoard(0,0);
-	new Player(50,50);
-	new FightManager(0,0);
-	//new TextBox(400,300);
+	new FakePlayer(400,150);
+	new HealthBar(0,0);
 }
 
 gameRefresh = function(){
@@ -173,11 +175,22 @@ class GameObject{
 	}
 	draw = function(){return;};
 	step = function(){return;};
-
+	checkCollision = function(a,b){
+		if(a.x>b.x-b.width/2&& //collision but fucked up
+			a.x < b.x+b.width/2&&
+			a.y>b.y-b.height/2&&
+			a.y < b.y+b.height/2){
+				return true;
+		}
+		return false;
+	}
 
 }
 
 class Player extends GameObject{
+	shield = 0;
+
+	static me = 0;
 	speed = 3;
 	bulletBoard = 0;
 	state = 0;
@@ -189,6 +202,7 @@ class Player extends GameObject{
 				this.bulletBoard = gameObjects[j];
 			} 
 		}
+		Player.me = this;
 	}
 	step = function(){
 		this.state();
@@ -203,16 +217,37 @@ class Player extends GameObject{
 		if(gameKeys[ord("i")]){this.y-=this.speed};
 		if(gameKeys[ord("l")]){this.x+=this.speed};
 		if(gameKeys[ord("k")]){this.y+=this.speed};
-		if(gameKeys[ord("p")]){new MostimaSecondSkill(this.x,this.y)};
-
-		this.x = Util.Clamp(this.x,this.bulletBoard.x+3, this.bulletBoard.x+this.bulletBoard.width-this.width-3);
-		this.y = Util.Clamp(this.y,this.bulletBoard.y+3, this.bulletBoard.y+this.bulletBoard.height-this.height-3);
+		//if(gameKeys[ord("p")]){new MostimaSecondSkill(this.x,this.y)};
+		if(this.bulletBoard != 0){
+			this.x = Util.Clamp(this.x,this.bulletBoard.x+3, this.bulletBoard.x+this.bulletBoard.width-this.width-3);
+			this.y = Util.Clamp(this.y,this.bulletBoard.y+3, this.bulletBoard.y+this.bulletBoard.height-this.height-3);
+		}
+		else{
+			for(var j = 0; j < gameObjects.length; j++){
+			if(gameObjects[j].__proto__.constructor == BulletBoard){
+				this.bulletBoard = gameObjects[j];
+			} 
+		}
+		}
 	}
 	blueMove = function(){//blue heart from undytale
 
 	}
-	greenMove = function(){//green heart from undytale
-		
+	greenMove = function(){//green heart from undytale (undyne)
+		this.sprite = sprites["green"];
+		if(Math.abs(this.x-400)<10){
+			this.x = 390;
+			this.y = 230;
+		}
+		else{
+			this.x -= Math.sign(this.x-390)*3;
+			this.y -= Math.sign(this.y-230)*3;
+		}
+
+		if(gameKeys[ord("j")]){this.dir = 3};
+		if(gameKeys[ord("i")]){this.dir = 0};
+		if(gameKeys[ord("l")]){this.dir = 1};
+		if(gameKeys[ord("k")]){this.dir = 2};
 	}
 	UIMove = function(){//ui if i ever want ui
 
@@ -222,14 +257,40 @@ class Player extends GameObject{
 class TextBox extends GameObject{
 	targetw = 1000;//must be divisible by 20
 	targeth = 200; //also must be divisible by 20
+	theText = 0;
+	textChar = 0;
+	textPage = 0;
+	count = 0;
+	textArray = ["Really, id like to stay and chat. ", "But my text library doesnt do line breaks","So im gonna cut this short"]
 	constructor(_x,_y){
 		super(_x,_y);
 		this.width = 0;
 		this.height =0;
 		
 	}
+	endFunc = function(){
+		HealthBar.crack = true;
+	}
 	step = function(){
-		return;
+		if(this.width != this.targetw || this.height != this.targeth){
+			
+		}
+		else{
+			this.textChar += 0.5;
+		}
+		this.theText = this.textArray[this.textPage].substring(0,this.textChar);
+		if(gameKeys[ord("z")]){
+			if(this.textChar > this.textArray[this.textPage].length){
+				if(this.textPage == this.textArray.length-1){
+					removeFromStepList(this);
+					this.endFunc();
+				}
+				else{
+					this.textChar=0;
+					this.textPage++;
+				}
+			}
+		}
 	}
 	draw = function(){
 		game.fillStyle = "black";
@@ -244,7 +305,7 @@ class TextBox extends GameObject{
 		else{
 			game.font = "17px elfont";
 			game.fillStyle = "white"
-			game.fillText("*  Mostima is dripping",this.x-this.width/4+10,this.y-this.height/4+30);
+			game.fillText("*  "+this.theText,this.x-this.width/4+10,this.y-this.height/4+30);
 		}
 		
 	}
@@ -346,6 +407,9 @@ class Bullet extends GameObject{
 		this.rotateAndPaintImage(game,this.sprite,this.dir/Util.Rad2Deg,this.x,this.y,this.width/2,this.height/2)
 	}
 	step = function(){
+		if(this.checkCollision(Player.me,this)){
+			gameOver();
+		}
 		this.x+=Math.cos(this.dir/Util.Rad2Deg)*this.speed;
 		this.y+=Math.sin(this.dir/Util.Rad2Deg)*this.speed;
 
@@ -355,14 +419,95 @@ class Bullet extends GameObject{
 		this.speed = Util.lerp(this.speed,this.targetSpeed,0.01);
 	}
 }
+function gameOver(){
+	//gameObjects = [];
+	//new Retry(0,0);
+}
+class FakePlayer extends GameObject{
+	count = 0;
+	oldx = 0;
+	oldy = 0;
+	centerx = 400;
+	centery = 200;
+	constructor(_x,_y){
+		super(_x,_y);
+		this.oldx = this.x;
+		this.oldy = this.y;
+		this.centerx = 400;
+		this.centery = 300;
+	}
+	draw = function(){
+		this.count++;
+		if(this.count < 35){
+			if(this.count%10 <= 5){
+
+			}
+			else{
+				this.drawSelf();	
+			}
+		}
+		else{
+			this.x = Util.lerp(this.oldx,this.centerx,(this.count-30)/30);
+			this.y = Util.lerp(this.oldy,this.centery,Math.min((this.count-30)/30,1));
+
+			this.drawSelf();
+			if(this.count >= 90){
+				new TextBox(400,300);
+				removeFromStepList(this);
+			}
+		}
+	}
+}
 class Hurtbox extends GameObject{
 
 
 }
+class Arrow extends Bullet{
+	constructor(_x,_y, _dir){
+		super(_x,_y);
+		this.sprite = sprites["arrow"];
+		this.dir = _dir*90;
+		//center is 400,300
+		var ex = Player.me.x;
+		var ey = Player.me.y;
+		switch(_dir){
+			case 0:
+				this.x = ex;
+				this.y = ey-100;
+				break;
+			case 1:
+				this.x = ex+100
+				this.y = ey
+				break;
+			case 2: 
+				this.x = ex;
+				this.y = ey+100
+				break;
+			case 3: 
+				this.x = ex-100;
+				this.y = ey+100;
+				break;
+			
+		}
+	}
+}
+class Retry extends GameObject{
+	draw = function(){
+		game.fillStyle = "white";
+		game.fillText("press z to retry",400,400);
+		if(gameKeys[ord("z")]){
+			removeFromStepList(this);
+			new FightManager(0,0);
+			new BulletBoard(0,0);
+			new Player(400,300);
+		}
+	}
+}
 class FightManager extends GameObject{
 	count = 0;
 	phase = 0;
-	
+	dirarray = [1,0,2,1,3,0,1,2,0,3,1,2,0,3,0,2,0,2,0,1,3,2];
+	count2 = 0;
 	constructor(_x,_y){
 		super(_x,_y)
 		this.count = 0;
@@ -373,7 +518,7 @@ class FightManager extends GameObject{
 		this.phases[this.phase](this); //for some reason the array becomes its own scope?
 	}
 	phase1 = function(_this){
-		if(_this.count < 160){
+		if(_this.count < 300){
 			new Bullet(400+(Math.cos(_this.count/20)*300),80,90);
 		}
 		if(_this.count%60 == 59){
@@ -386,15 +531,79 @@ class FightManager extends GameObject{
 			}
 			new MostimaSecondSkill(pl.x,pl.y);
 		}
-		if(_this.count > 240){
+		if(_this.count > 430){
 			_this.phase++;
 		}
 	}
 	phase2 = function(_this){
+		_this.count2++; 	
+		if(_this.count2%5 == 0){
+			new Arrow(0,0,_this.dirarray[_this.count2/5]);
+		}
+		Player.me.state = Player.me.greenMove;
+		if(_this.count2/5 >= _this.dirarray.length){
+			_this.phase++;
+		}
+	}
+	phase3 = function(_this){
+		gameObjects = [];
+		new TextBox3(400,300);
 
 	}
-	phases = [this.phase1,this.phase2]
+	phases = [this.phase1,this.phase2,this.phase3]
 	
+}
+class HealthBar extends GameObject{
+	static crack = false;
+	count = 0;
+	fallspeed = 0;
+	constructor(_x,_y){
+		super(_x,_y);
+		this.width = 100;
+		this.height = 50;
+		this.sprite = sprites["hp"];
+		this.x = 100
+		this.y = 50;
+		this.fallspeed = 0;
+		HealthBar.crack = false;
+	}
+	draw = function(){
+		
+		if(!HealthBar.crack){
+			this.drawSelf();
+		}
+		else{
+			this.count++;
+			if(this.count < 7){
+				game.fillStyle = "white";
+				game.fillRect(0,0,800,600);
+			}
+			this.sprite = sprites["crackedhp"];
+			this.drawSelf();
+			if(this.count >50){
+				this.y+=this.fallspeed;
+				this.fallspeed+=0.5;
+			}
+			if(this.count >130){
+				removeFromStepList(this);
+				new TextBox2(400,300);
+			}
+		}
+	}
+}
+class TextBox2 extends TextBox{
+	textArray = ["Ah, much better", "Now, lets begin"];
+	endFunc = function(){
+		new FightManager(0,0);
+		new BulletBoard(0,0);
+		new Player(400,300);
+	}
+}
+class TextBox3 extends TextBox{
+	textArray = ["if you survived that, i guess i have no option", "sorry that it was unfinished", "talk to mario", "talk to mario"];
+	endFunc = function(){
+
+	}
 }
 class Util{
 	static Clamp(val,min,max){
