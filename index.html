@@ -204,10 +204,10 @@ class GameObject{
 	draw = function(){return;};
 	step = function(){return;};
 	checkCollision = function(a,b){
-		if(a.x>b.x-b.width/2&& //collision but fucked up
-			a.x < b.x+b.width/2&&
-			a.y>b.y-b.height/2&&
-			a.y < b.y+b.height/2){
+		if(a.x+a.hitboxOffsetX>b.x-b.width/2&& //collision but fucked up
+			a.x+a.hitboxOffsetX < b.x+b.width/2&&
+			a.y+a.hitboxOffsetY>b.y-b.height/2&&
+			a.y+a.hitboxOffsetY < b.y+b.height/2){
 				return true;
 		}
 		return false;
@@ -230,6 +230,8 @@ class Player extends GameObject{
 				this.bulletBoard = gameObjects[j];
 			} 
 		}
+		this.hitboxOffsetX = this.width/2;
+		this.hitboxOffsetY = this.height/2;
 		Player.me = this;
 	}
 	step = function(){
@@ -437,12 +439,16 @@ class Bullet extends GameObject{
 		this.targetSpeed = 0;
 		this.speed = 0;
 		this.sprite = sprites["bullet"];
+		this.hitboxOffsetX = this.width/4;
+		this.hitboxOffsetY = this.height/4;
+		this.hitboxWidth = this.width/2;
+		this.hitboxHeight = this.height/2;
 	}
 	draw = function(){
 		this.rotateAndPaintImage(game,this.sprite,this.dir/Util.Rad2Deg,this.x,this.y,this.width/2,this.height/2)
 	}
 	step = function(){
-		if(this.checkCollision(this,Player.me)){
+		if(this.checkCollision(Player.me,this)){
 			gameOver();
 		}
 		this.x+=Math.cos(this.dir/Util.Rad2Deg)*this.speed;
@@ -581,7 +587,7 @@ class FightManager extends GameObject{
 		}
 	}
 	phase3 = function(_this){
-		new Bullet(300,300,0);
+		new Bullet(400,250,0);
 	}
 	phases = [this.phase3,this.phase2,this.phase3]
 	
