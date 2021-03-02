@@ -1,5 +1,6 @@
 
-
+<html>
+	<meta charset="utf-8" />
 <script>
 mosawake = false;
 transparency = 0;
@@ -71,6 +72,7 @@ ongo = function(b){
 	}
 	if(b.code == "Digit9"){ //skip for debugging
 		time_for_game();
+		gameOver();
 	}
 }
 time_for_game = function(){//kill everything and get the canvas started.
@@ -153,12 +155,20 @@ removeFromStepList = function(_gameObject){
 
 
 class GameObject{
+	hitboxOffsetX = 0;
+	hitboxOffsetY = 0;
+	hitboxWidth = 0;
+	hitboxHeight = 0;
 	x = 0;
 	y = 0;
 	width = 0;
 	height = 0;
 	sprite = 0;
 	constructor(_x,_y){
+		this.hitboxHeight = this.height;
+		this.hitboxWidth = this.width;
+		this.hitboxOffsetX = 0;
+		this.hitboxOffsetY = 0;
 		this.x = _x;
 		this.y = _y;
 		this.width = 16;
@@ -222,6 +232,8 @@ class Player extends GameObject{
 		if(gameKeys[ord("i")]){this.y-=this.speed};
 		if(gameKeys[ord("l")]){this.x+=this.speed};
 		if(gameKeys[ord("k")]){this.y+=this.speed};
+
+		
 		//if(gameKeys[ord("p")]){new MostimaSecondSkill(this.x,this.y)};
 		if(this.bulletBoard != 0){
 			this.x = Util.Clamp(this.x,this.bulletBoard.x+3, this.bulletBoard.x+this.bulletBoard.width-this.width-3);
@@ -404,15 +416,15 @@ class Bullet extends GameObject{
 		if(_step != null){
 			this.step = _step;
 		}
-		this.targetSpeed = 2;
-		this.speed = 2;
+		this.targetSpeed = 0;
+		this.speed = 0;
 		this.sprite = sprites["bullet"];
 	}
 	draw = function(){
 		this.rotateAndPaintImage(game,this.sprite,this.dir/Util.Rad2Deg,this.x,this.y,this.width/2,this.height/2)
 	}
 	step = function(){
-		if(this.checkCollision(Player.me,this)){
+		if(this.checkCollision(this,Player.me)){
 			gameOver();
 		}
 		this.x+=Math.cos(this.dir/Util.Rad2Deg)*this.speed;
@@ -551,11 +563,9 @@ class FightManager extends GameObject{
 		}
 	}
 	phase3 = function(_this){
-		gameObjects = [];
-		new TextBox3(400,300);
-
+		new Bullet(300,300,0);
 	}
-	phases = [this.phase1,this.phase2,this.phase3]
+	phases = [this.phase3,this.phase2,this.phase3]
 	
 }
 class HealthBar extends GameObject{
@@ -605,7 +615,7 @@ class TextBox2 extends TextBox{
 	}
 }
 class TextBox3 extends TextBox{
-	textArray = ["if you survived that, i guess i have no option", "sorry that it was unfinished", "talk to mario", "talk to mario"];
+	textArray = ["if you survived that, i guess i have no option", "sorry that it was unfinished", "talk to mario"];
 	endFunc = function(){
 
 	}
