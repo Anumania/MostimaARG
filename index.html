@@ -621,7 +621,7 @@ class Arrow extends Bullet{
 				this.y = ey-600+8;
 				break;
 			case 1:
-				this.x = ex+600-8;
+				this.x = ex+600+8;
 				this.y = ey+8
 				break;
 			case 2: 
@@ -729,15 +729,16 @@ class FightManager extends GameObject{
 			new Arrow(0,0,_this.dirarray[_this.count2/15]);
 		}
 		Player.me.state = Player.me.greenMove;
-		if(_this.count2/15 >= _this.dirarray.length){
+		if(_this.count2/15 >= _this.dirarray.length+200){
 			_this.count = 0;
 			_this.phase++;
 		}
 	}
 	phase3 = function(_this){
-		new Bullet(400,250,0);
+		gameObjects = [];
+		new TextBox3(400,300);
 	}
-	phases = [this.phase4,this.phase2,this.phase3]
+	phases = [this.phase1,this.phase2,this.phase4,this.phase3]
 	
 }
 class HealthBar extends GameObject{
