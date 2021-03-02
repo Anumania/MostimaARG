@@ -18,18 +18,21 @@ flavor_text =
 story = ["...",
 "You've, heh... made a horrible mistake, coming here.",
 "I don't know if you know this, but I tend to win by any means necessary.",
-"Just give up, I'm among bitches and you arent.",
+"Just give up, I'm straight fuckin drippin.",
 "If you keep pestering me, I'm gonna have to kick your ass.",
-"How about instead of bothering me you go bother some bitches dumbass.",
+"Trying to complete an alternate reality game?",
+"The reality is that you can't even alternate between bitches.",
 "...Hey, you wanna know a secret?",
-"I'm the imposter."
+"I'm the imposter.",
+"",
+"",
+""
 ]
 images = ["https://media.discordapp.net/attachments/623381118552375313/812210903566516224/MOSTIMA_DRIP_3.png?width=319&height=558", 
 "https://media.discordapp.net/attachments/623381118552375313/812210895181709333/MOSTIMA_DRIP.png?width=319&height=558",
 "https://media.discordapp.net/attachments/623381118552375313/812210813984833546/MOSTIMA_DRIP_2.png?width=319&height=558",
 "https://media.discordapp.net/attachments/623381118552375313/812210920306376734/MOSTIMA_DRIP_SANS.png?width=319&height=558",
-"https://cdn.discordapp.com/attachments/658145541108269066/816128705108901888/ACTUAL_MOSTIMA_SANS.png",
-"https://cdn.discordapp.com/attachments/658145541108269066/816129214385487872/unknown.png"]
+"https://cdn.discordapp.com/attachments/623381118552375313/816198709565325344/most.png"]
 count = 0;
 counting = 0;
 img = 0;
@@ -58,14 +61,21 @@ refresh = function(){
 	}
 	switch(storypart){
 		 case 0: document.getElementById("mos").src = images[0]; break;
-		 case 1: document.getElementById("mos").src = images[2]; speed = 5;  break;
-		 case 2: document.getElementById("mos").src = images[0]; break;
-		 case 2: document.getElementById("mos").src = images[1]; break;
-		 case 7: document.getElementById("mos").src = images[3]; break; 
+		 case 1: document.getElementById("mos").src = images[0]; speed = 5;  break;
+		 case 2: document.getElementById("mos").src = images[2]; break;
+		 case 3: document.getElementById("mos").src = images[1]; break;
+		 case 4: document.getElementById("mos").src = images[2]; break; 
+		 case 5: document.getElementById("mos").src = images[0]; break; 
+		 case 6: document.getElementById("mos").src = images[1]; break; 
+		 case 7: document.getElementById("mos").src = images[0]; break; 
+		 case 8: document.getElementById("mos").src = images[3]; break; 
+		 case 8: document.getElementById("mos").src = images[4]; break; 
+		 case 8: document.getElementById("mos").src = images[3]; break;
+		 case 8: document.getElementById("mos").src = images[4]; break; 
 		}
 	if(storychar >= story[storypart].length && storypart == story.length-1){ //if the vn part is done, we go.
 		time_for_game();
-        gameOver();
+        //gameOver();
         
 	}
 	if(mosawake && storychar >= story[storypart].length){ //auto text advance
