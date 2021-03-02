@@ -94,7 +94,7 @@ time_for_game = function(){//kill everything and get the canvas started.
 	document.getElementById("mos").style.opacity = 0;
 	document.getElementById("textbox").innerHTML = " ";
 	document.getElementById("canvas").width = 800;
-	document.getElementById("canvas").height = 400;
+	document.getElementById("canvas").height = 600;
 	window.onclick = function(){}
 	clearInterval(interv);
 	document.removeEventListener('keypress', ongo);
@@ -113,6 +113,9 @@ loadImages = function(){ //this lets the images load while the vn is happenin.
 	sprites["arrow"] = newImage("arrow.png");
 	sprites["green"] = newImage("Green_SOUL_sprite.png");
 	sprites["most3rd"] = LoadImageSequence("./most/mosh_1.png_",28);
+	sprites["animTest"] = LoadImageSequence("test/bruh");
+	sprites["twopac"] = newImage("2pac.png");
+	sprites["mos"] = newImage("most.png");
 }
 newImage = function(str){
 	var n = new Image();
@@ -148,6 +151,7 @@ gameCreate = function(){
 	canvas.style = "position:absolute; margin-top: 150px;left: 50%; width: 800px; margin-left: -400px";
 	document.addEventListener('keydown', keydown);
 	document.addEventListener('keyup', keyup);
+	new Tupac(0,0);
 	new FakePlayer(400,150);
 	new HealthBar(0,0);
 }
@@ -390,7 +394,7 @@ class BulletBoard extends GameObject{
 	step = function(){
 		this.x = 250;
 		this.width = 300;
-		this.y = 90;
+		this.y = 290;
 		this.height = 300;
 	}
 	draw = function(){
@@ -565,10 +569,30 @@ class Bullet extends GameObject{
 function gameOver(){
 	gameObjects = [];
 	new Retry(0,0);
+	new Tupac(0,0);
+}
+
+class Tupac extends GameObject {
+	twopack = false;
+	draw = function(){
+		this.twopack = false;
+		for(var j = 0; j < gameObjects.length; j++){
+                if(gameObjects[j].__proto__.constructor == Retry){
+				this.twopack = true;
+			}
+		}
+		if (this.twopack) {
+			game.drawImage(sprites["twopac"],200,0,320,274);
+		} else {
+			game.drawImage(sprites["mos"],270,-20,300,525);
+		}
+		
+	}
 }
 class FakePlayer extends GameObject{
 	count = 0;
 	oldx = 0;
+	
 	oldy = 0;
 	centerx = 400;
 	centery = 200;
@@ -697,14 +721,15 @@ class FightManager extends GameObject{
 		if(_this.count > 500){
 			_this.count = 0;
 			_this.phase++;
+			_this.count = 0;
 		}
 	}
 	phase2 = function(_this) {
 		if((_this.count < 900) && (_this.count % 20 == 0)){
 			for (var i=0; i<360; i+= 40) {
-				var bitches = new Bullet(400+(Math.cos(_this.count/40)*300),80,90);
+				var bitches = new Bullet(400+(Math.cos(_this.count/40)*300),250,90);
 				bitches.dir = i;
-				var bitches = new Bullet(400+(Math.sin(_this.count/40)*300),80,90);
+				var bitches = new Bullet(400+(Math.sin(_this.count/40)*300),250,90);
 				bitches.dir = i;
 			}
 		}
@@ -716,11 +741,12 @@ class FightManager extends GameObject{
 					break;
 				} 
 			}
-			new MostimaThirdSkill(400,400);
+			new MostimaThirdSkill(400,600);
 		}
 		if(_this.count > 500){
 			_this.count = 0;
 			_this.phase++;
+			_this.count = 0;
 		}
 	}
 	phase4 = function(_this){
@@ -788,9 +814,13 @@ class TextBox2 extends TextBox{
 	}
 }
 class TextBox3 extends TextBox{
-	textArray = ["if you survived that, i guess i have no option", "sorry that it was unfinished", "talk to mario"];
+	textArray = ["A fighter, arentcha?",
+	"You can't beat me, but I can't hit you.",
+	"Just get outta here, kid.",
+	"You won't get past my buddy Mario.",
+	"Doesn't matter what you say to him, guy only moves for the password."];
 	endFunc = function(){
-
+		window.close();
 	}
 }
 class Util{
