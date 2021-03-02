@@ -23,10 +23,7 @@ story = ["...",
 "Trying to complete an alternate reality game?",
 "The reality is that you can't even alternate between bitches.",
 "...Hey, you wanna know a secret?",
-"I'm the imposter.",
-"",
-"",
-""
+"I'm the imposter."
 ]
 images = ["https://media.discordapp.net/attachments/623381118552375313/812210903566516224/MOSTIMA_DRIP_3.png?width=319&height=558", 
 "https://media.discordapp.net/attachments/623381118552375313/812210895181709333/MOSTIMA_DRIP.png?width=319&height=558",
@@ -96,7 +93,6 @@ ongo = function(b){
 	}*/
 	if(b.code == "Digit9"){ //skip for debugging
 		time_for_game();
-		gameOver();
 	}
 }
 time_for_game = function(){//kill everything and get the canvas started.
@@ -584,7 +580,9 @@ function gameOver(){
 
 class Tupac extends GameObject {
 	twopack = false;
+	count = 0;
 	draw = function(){
+		this.count++;
 		this.twopack = false;
 		for(var j = 0; j < gameObjects.length; j++){
                 if(gameObjects[j].__proto__.constructor == Retry){
@@ -594,7 +592,9 @@ class Tupac extends GameObject {
 		if (this.twopack) {
 			game.drawImage(sprites["twopac"],200,0,320,274);
 		} else {
+			game.globalAlpha = (Math.max(this.count-60,0)/60);
 			game.drawImage(sprites["mos"],270,-20,300,525);
+			game.globalAlpha = 1;
 		}
 		
 	}
