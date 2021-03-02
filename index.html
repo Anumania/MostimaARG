@@ -112,11 +112,19 @@ loadImages = function(){ //this lets the images load while the vn is happenin.
 	sprites["crackedhp"] = newImage("brokenhp.png");
 	sprites["arrow"] = newImage("arrow.png");
 	sprites["green"] = newImage("Green_SOUL_sprite.png");
+	sprites["animTest"] = LoadImageSequence("test/bruh")
 }
 newImage = function(str){
 	var n = new Image();
 	n.src = str;
 	return n;
+}
+LoadImageSequence = function(str,numOfFrames){
+	gif = new Array(numOfFrames);
+	for(var i = 0; i < numOfFrames; i++){
+		gif[i] = newImage(str+i+".png");
+	}
+	return gif;
 }
 sprites = new Map();
 loopTimer = 0;
@@ -706,7 +714,7 @@ class FightManager extends GameObject{
 	phase3 = function(_this){
 		new Bullet(400,250,0);
 	}
-	phases = [this.phase2,this.phase1,this.phase3]
+	phases = [this.phase1,this.phase1,this.phase3]
 	
 }
 class HealthBar extends GameObject{
