@@ -112,7 +112,7 @@ loadImages = function(){ //this lets the images load while the vn is happenin.
 	sprites["crackedhp"] = newImage("brokenhp.png");
 	sprites["arrow"] = newImage("arrow.png");
 	sprites["green"] = newImage("Green_SOUL_sprite.png");
-	sprites["animTest"] = LoadImageSequence("most/bruhmosh_1.png_")
+	sprites["most3rd"] = LoadImageSequence("./most/mosh_1.png_",28);
 }
 newImage = function(str){
 	var n = new Image();
@@ -151,7 +151,13 @@ gameCreate = function(){
 	new FakePlayer(400,150);
 	new HealthBar(0,0);
 }
-
+debugDraw = function(_this){
+	if(DEBUG){
+			game.strokeStyle = "red";
+			var b = _this;
+			game.strokeRect(b.x+b.hitboxOffsetX,b.y+b.hitboxOffsetY,b.hitboxWidth,b.hitboxHeight);
+		}
+}
 gameRefresh = function(){
 	//event.keyCode
 	game.save(); //these are actually for the screen rotations and stuff
@@ -456,13 +462,15 @@ class MostimaSecondSkill extends GameObject{ //its just a bunch of squares that 
 	}
 }
 class MostimaThirdSkill extends GameObject{
+	anim = sprites["most3rd"];
 	count = 0;
 	rotation = 30;
-	blink = 0
+	blink = 0;
+	count2 = 0;
 	constructor(_x,_y){
 		super(_x,_y);
-		this.width = 256;
-		this.height = 128;
+		this.width = 256*2;
+		this.height = 128*4;
 	}
 	step = function(){
 		if(Math.abs(this.count-60)<4){
@@ -480,25 +488,6 @@ class MostimaThirdSkill extends GameObject{
 	draw = function(){
 		var loops = 5;
 		var val = Math.max(this.blink + ((Math.sin(this.count/50))*100),20);
-		game.strokeStyle = Util.MakeColor(val,val,val);
-
-		game.translate(this.x,this.y);
-		for(var i = 0; i < loops; i++){
-			game.strokeRect(-this.width/2,-this.width/2,this.width,this.height);
-			game.scale(1/this.scaler,1/this.scaler)
-			game.rotate(this.rotation/Util.Rad2Deg);
-		}
-		for(var i = 0; i < loops; i++){ //undo 
-			game.rotate(-this.rotation/Util.Rad2Deg);
-			game.scale(this.scaler,this.scaler)
-		}
-		
-		if(this.blink){
-			var scaled = 1+(this.count-54)/10;
-			game.scale(scaled,scaled)
-			game.strokeRect(-this.width/2,-this.width/2,this.width,this.height);
-			game.scale(1/scaled,1/scaled)
-		}
 		if(this.count > 65){
 			removeFromStepList(this);
 			for(var j = 0; j < gameObjects.length; j++){
@@ -514,7 +503,18 @@ class MostimaThirdSkill extends GameObject{
 			}
 			Player.me.bouncey = 5;
 		}
-		game.translate(-this.x,-this.y);
+		game.strokeStyle = Util.MakeColor(val,val,val);
+		if(this.count>45){
+			this.count2++;
+			this.sprite = this.anim[Math.floor(this.count2)%this.anim.length];
+			var tempy = this.y;
+			var tempx = this.x;
+			this.y = 400-128*2 
+			this.x = 400 - this.width/2;
+			this.drawSelf();
+			this.y = tempy;
+			this.x = tempx;
+		}
 	}
 }
 class Bullet extends GameObject{
@@ -714,7 +714,7 @@ class FightManager extends GameObject{
 	phase3 = function(_this){
 		new Bullet(400,250,0);
 	}
-	phases = [this.phase1,this.phase1,this.phase3]
+	phases = [this.phase1,this.phase2,this.phase4]
 	
 }
 class HealthBar extends GameObject{
