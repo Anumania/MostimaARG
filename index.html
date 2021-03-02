@@ -447,8 +447,8 @@ class Bullet extends GameObject{
 		if(_step != null){
 			this.step = _step;
 		}
-		this.targetSpeed = 0;
-		this.speed = 0;
+		this.targetSpeed = 3;
+		this.speed = 3;
 		this.sprite = sprites["bullet"];
 		this.hitboxOffsetX = this.width/4;
 		this.hitboxOffsetY = this.height/4;
@@ -570,7 +570,7 @@ class FightManager extends GameObject{
 		this.phases[this.phase](this); //for some reason the array becomes its own scope?
 	}
 	phase1 = function(_this){
-		if((_this.count < 300) && (count % 2 == 0)){
+		if((_this.count < 300) && (_this.count % 2 == 0)){
 			new Bullet(400+(Math.cos(_this.count/40)*300),80,90);
 		}
 		if(_this.count%60 == 59){
@@ -588,11 +588,11 @@ class FightManager extends GameObject{
 		}
 	}
 	phase2 = function(_this) {
-		if((_this.count < 300) && (count % 20 == 0)){
-			/*for (var i=0; i<360; i+= 40) {
+		if((_this.count < 300) && (_this.count % 20 == 0)){
+			for (var i=0; i<360; i+= 40) {
 				var bitches = new Bullet(400+(Math.cos(_this.count/40)*300),80,90);
 				bitches.dir = i;
-			}*/
+			}
 		}
 		if(_this.count%60 == 59){
 			var pl = 0;
@@ -621,7 +621,7 @@ class FightManager extends GameObject{
 	phase3 = function(_this){
 		new Bullet(400,250,0);
 	}
-	phases = [this.phase2,this.phase1,this.phase3]
+	phases = [this.phase1,this.phase1,this.phase3]
 	
 }
 class HealthBar extends GameObject{
