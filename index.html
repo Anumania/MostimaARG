@@ -14,19 +14,22 @@ flavor_text =
 "mostima is sus"
 ]
 story = ["...",
-"Youve made a horrible mistake, coming here.",
-"I dont know if you know this, but i tend to win by any means necessary",
-"Give up, im among bitches and you arent.",
-"If you keep pestering me, im gonna have to kick your ass",
-"How about instead of bothering me you go bother some bitches dumbass",
-"Hey you wanna know a secret?",
-"Im the imposter"
+"You've, heh... made a horrible mistake, coming here.",
+"I don't know if you know this, but I tend to win by any means necessary.",
+"Just give up, I'm among bitches and you arent.",
+"If you keep pestering me, I'm gonna have to kick your ass.",
+"How about instead of bothering me you go bother some bitches dumbass.",
+"...Hey, you wanna know a secret?",
+"I'm the imposter."
 ]
 images = ["https://media.discordapp.net/attachments/623381118552375313/812210903566516224/MOSTIMA_DRIP_3.png?width=319&height=558", 
 "https://media.discordapp.net/attachments/623381118552375313/812210895181709333/MOSTIMA_DRIP.png?width=319&height=558",
 "https://media.discordapp.net/attachments/623381118552375313/812210813984833546/MOSTIMA_DRIP_2.png?width=319&height=558",
-"https://media.discordapp.net/attachments/623381118552375313/812210920306376734/MOSTIMA_DRIP_SANS.png?width=319&height=558"]
+"https://media.discordapp.net/attachments/623381118552375313/812210920306376734/MOSTIMA_DRIP_SANS.png?width=319&height=558",
+"https://cdn.discordapp.com/attachments/658145541108269066/816128705108901888/ACTUAL_MOSTIMA_SANS.png",
+"https://cdn.discordapp.com/attachments/658145541108269066/816129214385487872/unknown.png"]
 count = 0;
+counting = 0;
 img = 0;
 inter = 0;
 window.onload = function(){
@@ -59,18 +62,28 @@ refresh = function(){
 		 case 7: document.getElementById("mos").src = images[3]; break; 
 		}
 	if(storychar >= story[storypart].length && storypart == story.length-1){ //if the vn part is done, we go.
-		time_for_game();
+		//time_for_game();
+        gameOver();
+        
+	}
+	if(mosawake && storychar >= story[storypart].length){ //auto text advance
+		if((story.length > storypart) && (counting >= 120)){
+			storychar = 0;
+			storypart++;
+			counting = 0;
+		}
+		counting++;
 	}
 }
 ongo = function(b){
-	if(mosawake && storychar >= story[storypart].length){
+	/*if(mosawake && storychar >= story[storypart].length){
 		if(story.length > storypart){
 			storychar = 0;
 			storypart++;
 		}
-	}
+	}*/
 	if(b.code == "Digit9"){ //skip for debugging
-		time_for_game();
+		//time_for_game();
 	}
 }
 time_for_game = function(){//kill everything and get the canvas started.
@@ -218,10 +231,15 @@ class Player extends GameObject{
 	}
 
 	redMove = function(){ //red heart from undytale
-		if(gameKeys[ord("j")]){this.x-=this.speed};
+		if(gameKeys[ord("j")]){this.x-=this.speed}; //ijkl
 		if(gameKeys[ord("i")]){this.y-=this.speed};
 		if(gameKeys[ord("l")]){this.x+=this.speed};
 		if(gameKeys[ord("k")]){this.y+=this.speed};
+		
+		/*if(gameKeys[ord("j")]){this.x-=this.speed}; //udlr
+		if(gameKeys[ord("i")]){this.y-=this.speed};
+		if(gameKeys[ord("l")]){this.x+=this.speed};
+		if(gameKeys[ord("k")]){this.y+=this.speed};*/
 		//if(gameKeys[ord("p")]){new MostimaSecondSkill(this.x,this.y)};
 		if(this.bulletBoard != 0){
 			this.x = Util.Clamp(this.x,this.bulletBoard.x+3, this.bulletBoard.x+this.bulletBoard.width-this.width-3);
@@ -236,7 +254,9 @@ class Player extends GameObject{
 		}
 	}
 	blueMove = function(){//blue heart from undytale
-
+        if(gameKeys[ord("j")]){this.x-=this.speed};
+		if(gameKeys[ord("i")]){this.y-=this.speed};
+		if(gameKeys[ord("l")]){this.x+=this.speed};
 	}
 	greenMove = function(){//green heart from undytale (undyne)
 		this.sprite = sprites["green"];
@@ -523,8 +543,8 @@ class FightManager extends GameObject{
 		this.phases[this.phase](this); //for some reason the array becomes its own scope?
 	}
 	phase1 = function(_this){
-		if(_this.count < 300){
-			new Bullet(400+(Math.cos(_this.count/20)*300),80,90);
+		if((_this.count < 300) && (count % 2 == 0)){
+			new Bullet(400+(Math.cos(_this.count/40)*300),80,90);
 		}
 		if(_this.count%60 == 59){
 			var pl = 0;
