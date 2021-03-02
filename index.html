@@ -121,6 +121,7 @@ loadImages = function(){ //this lets the images load while the vn is happenin.
 	sprites["crackedhp"] = newImage("brokenhp.png");
 	sprites["arrow"] = newImage("arrow.png");
 	sprites["green"] = newImage("Green_SOUL_sprite.png");
+	sprites["most3rd"] = LoadImageSequence("./most/mosh_1.png_",28);
 	sprites["animTest"] = LoadImageSequence("test/bruh");
 	sprites["twopac"] = newImage("2pac.png");
 	sprites["mos"] = newImage("most.png");
@@ -163,7 +164,13 @@ gameCreate = function(){
 	new FakePlayer(400,150);
 	new HealthBar(0,0);
 }
-
+debugDraw = function(_this){
+	if(DEBUG){
+			game.strokeStyle = "red";
+			var b = _this;
+			game.strokeRect(b.x+b.hitboxOffsetX,b.y+b.hitboxOffsetY,b.hitboxWidth,b.hitboxHeight);
+		}
+}
 gameRefresh = function(){
 	//event.keyCode
 	game.save(); //these are actually for the screen rotations and stuff
@@ -468,13 +475,15 @@ class MostimaSecondSkill extends GameObject{ //its just a bunch of squares that 
 	}
 }
 class MostimaThirdSkill extends GameObject{
+	anim = sprites["most3rd"];
 	count = 0;
 	rotation = 30;
-	blink = 0
+	blink = 0;
+	count2 = 0;
 	constructor(_x,_y){
 		super(_x,_y);
-		this.width = 256;
-		this.height = 128;
+		this.width = 256*2;
+		this.height = 128*4;
 	}
 	step = function(){
 		if(Math.abs(this.count-60)<4){
@@ -492,25 +501,6 @@ class MostimaThirdSkill extends GameObject{
 	draw = function(){
 		var loops = 5;
 		var val = Math.max(this.blink + ((Math.sin(this.count/50))*100),20);
-		game.strokeStyle = Util.MakeColor(val,val,val);
-
-		game.translate(this.x,this.y);
-		for(var i = 0; i < loops; i++){
-			game.strokeRect(-this.width/2,-this.width/2,this.width,this.height);
-			game.scale(1/this.scaler,1/this.scaler)
-			game.rotate(this.rotation/Util.Rad2Deg);
-		}
-		for(var i = 0; i < loops; i++){ //undo 
-			game.rotate(-this.rotation/Util.Rad2Deg);
-			game.scale(this.scaler,this.scaler)
-		}
-		
-		if(this.blink){
-			var scaled = 1+(this.count-54)/10;
-			game.scale(scaled,scaled)
-			game.strokeRect(-this.width/2,-this.width/2,this.width,this.height);
-			game.scale(1/scaled,1/scaled)
-		}
 		if(this.count > 65){
 			removeFromStepList(this);
 			for(var j = 0; j < gameObjects.length; j++){
@@ -526,7 +516,18 @@ class MostimaThirdSkill extends GameObject{
 			}
 			Player.me.bouncey = 5;
 		}
-		game.translate(-this.x,-this.y);
+		game.strokeStyle = Util.MakeColor(val,val,val);
+		if(this.count>45){
+			this.count2++;
+			this.sprite = this.anim[Math.floor(this.count2)%this.anim.length];
+			var tempy = this.y;
+			var tempx = this.x;
+			this.y = 400-128*2 
+			this.x = 400 - this.width/2;
+			this.drawSelf();
+			this.y = tempy;
+			this.x = tempx;
+		}
 	}
 }
 class Bullet extends GameObject{
@@ -550,7 +551,7 @@ class Bullet extends GameObject{
 		this.hitboxHeight = this.height/4;
 	}
 	draw = function(){
-		this.rotateAndPaintImage(game,this.sprite,this.dir/Util.Rad2Deg,this.x,this.y,this.width/2,this.height/2);
+		this.rotateAndPaintImage(game,this.sprite,((this.dir+90)/Util.Rad2Deg),this.x,this.y,this.width/2,this.height/2);
 		if(DEBUG){
 			game.strokeStyle = "red";
 			var b = this;
@@ -640,30 +641,50 @@ class Hurtbox extends GameObject{
 class Arrow extends Bullet{
 	constructor(_x,_y, _dir){
 		super(_x,_y);
+		this.hitboxWidth = 16;
+		this.hitboxHeight = 16;
 		this.sprite = sprites["arrow"];
-		this.dir = _dir*90;
+		this.dir = (_dir*90)+90;
 		//center is 400,300
 		var ex = Player.me.x;
 		var ey = Player.me.y;
 		switch(_dir){
 			case 0:
-				this.x = ex;
-				this.y = ey-100;
+				this.x = ex+8;
+				this.y = ey-600+8;
 				break;
 			case 1:
-				this.x = ex+100
-				this.y = ey
+				this.x = ex+600+8;
+				this.y = ey+8
 				break;
 			case 2: 
-				this.x = ex;
-				this.y = ey+100
+				this.x = ex+8
+				this.y = ey+600+8
 				break;
 			case 3: 
-				this.x = ex-100;
-				this.y = ey+100;
+				this.x = ex-600+8
+				this.y = ey+8
 				break;
 			
 		}
+	}
+	step = function(){
+		if(this.checkCollision(Player.me,this)){
+			if((Player.me.dir+1) != this.dir/90){
+				gameOver();
+			}
+			else{
+				removeFromStepList(this);
+			}
+
+		}
+		if (this.bouncey != 0) {
+			this.y-=this.bouncey;
+			this.bouncey /= 1.1;
+		}
+		this.x+=Math.cos(this.dir/Util.Rad2Deg)*this.speed;
+		this.y+=Math.sin(this.dir/Util.Rad2Deg)*this.speed;
+		this.speed = Util.lerp(this.speed,this.targetSpeed,0.01);
 	}
 }
 class Retry extends GameObject{
@@ -681,7 +702,7 @@ class Retry extends GameObject{
 class FightManager extends GameObject{
 	count = 0;
 	phase = 0;
-	dirarray = [1,0,2,1,3,0,1,2,0,3,1,2,0,3,0,2,0,2,0,1,3,2];
+	dirarray = [0,1,2,3,0,1,2,3,0,1,2,3,0,3,2,1,0,3,2,1];
 	count2 = 0;
 	constructor(_x,_y){
 		super(_x,_y)
@@ -707,6 +728,7 @@ class FightManager extends GameObject{
 			new MostimaSecondSkill(pl.x,pl.y);
 		}
 		if(_this.count > 500){
+			_this.count = 0;
 			_this.phase++;
 			_this.count = 0;
 		}
@@ -731,24 +753,27 @@ class FightManager extends GameObject{
 			new MostimaThirdSkill(400,600);
 		}
 		if(_this.count > 500){
+			_this.count = 0;
 			_this.phase++;
 			_this.count = 0;
 		}
 	}
 	phase4 = function(_this){
 		_this.count2++; 	
-		if(_this.count2%5 == 0){
-			new Arrow(0,0,_this.dirarray[_this.count2/5]);
+		if(_this.count2%15 == 0){
+			new Arrow(0,0,_this.dirarray[_this.count2/15]);
 		}
 		Player.me.state = Player.me.greenMove;
-		if(_this.count2/5 >= _this.dirarray.length){
+		if(_this.count2/15 >= _this.dirarray.length+200){
+			_this.count = 0;
 			_this.phase++;
 		}
 	}
 	phase3 = function(_this){
-		new Bullet(400,250,0);
+		gameObjects = [];
+		new TextBox3(400,300);
 	}
-	phases = [this.phase1,this.phase2,this.phase3]
+	phases = [this.phase1,this.phase2,this.phase4,this.phase3]
 	
 }
 class HealthBar extends GameObject{
