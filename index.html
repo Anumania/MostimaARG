@@ -25,7 +25,6 @@ story = ["...",
 "...Hey, you wanna know a secret?",
 "I'm the imposter.",
 "",
-"",
 ""
 ]
 images = ["https://media.discordapp.net/attachments/623381118552375313/812210903566516224/MOSTIMA_DRIP_3.png?width=319&height=558", 
@@ -61,7 +60,7 @@ refresh = function(){
 	}
 	switch(storypart){
 		 case 0: document.getElementById("mos").src = images[0]; break;
-		 case 1: document.getElementById("mos").src = images[0]; speed = 5;  break;
+		 case 1: document.getElementById("mos").src = images[0]; break;
 		 case 2: document.getElementById("mos").src = images[2]; break;
 		 case 3: document.getElementById("mos").src = images[1]; break;
 		 case 4: document.getElementById("mos").src = images[2]; break; 
@@ -69,9 +68,9 @@ refresh = function(){
 		 case 6: document.getElementById("mos").src = images[1]; break; 
 		 case 7: document.getElementById("mos").src = images[0]; break; 
 		 case 8: document.getElementById("mos").src = images[3]; break; 
-		 case 8: document.getElementById("mos").src = images[4]; break; 
-		 case 8: document.getElementById("mos").src = images[3]; break;
-		 case 8: document.getElementById("mos").src = images[4]; break; 
+		 case 9: document.getElementById("mos").src = images[4]; break; 
+		 case 10: document.getElementById("mos").src = images[3]; break;
+		 case 11: document.getElementById("mos").src = images[4]; break; 
 		}
 	if(storychar >= story[storypart].length && storypart == story.length-1){ //if the vn part is done, we go.
 		time_for_game();
