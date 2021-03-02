@@ -348,7 +348,9 @@ class TextBox extends GameObject{
 	textChar = 0;
 	textPage = 0;
 	count = 0;
-	textArray = ["Really, id like to stay and chat. ", "But my text library doesnt do line breaks","So im gonna cut this short"]
+	textArray = ["Really, I'd like to stay and chat.",
+	"But my text library doesnt do line breaks,",
+	"So I'm gonna cut this short."]
 	constructor(_x,_y){
 		super(_x,_y);
 		this.width = 0;
@@ -817,7 +819,8 @@ class HealthBar extends GameObject{
 	}
 }
 class TextBox2 extends TextBox{
-	textArray = ["Ah, much better", "Now, lets begin"];
+	textArray = ["Ah, much better.",
+	"Now, let's begin."];
 	endFunc = function(){
 		new FightManager(0,0);
 		new BulletBoard(0,0);
