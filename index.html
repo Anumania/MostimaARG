@@ -7,6 +7,7 @@ transparency = 0;
 storypart = 0;
 storychar = 0;
 speed = 5;
+DEBUG = false; //for hitboxes
 flavor_text = 
 ["get this, he turns himself into a pickle",
 "mostima looks like shes gonna win by any means necessary",
@@ -145,6 +146,7 @@ gameCreate = function(){
 
 gameRefresh = function(){
 	//event.keyCode
+	game.save(); //these are actually for the screen rotations and stuff
 	game.fillStyle = "black"; //wipe screen.
 	game.fillRect(0,0,800,600);
 	for(var i = 0; i < gameObjects.length; i++){//step
@@ -153,6 +155,7 @@ gameRefresh = function(){
 	for(var i = 0; i < gameObjects.length; i++){//draw
 		gameObjects[i].draw();
 	}
+	game.restore();
 }
 addToStepList = function(gameObject){
 	gameObjects.push(gameObject);
@@ -186,6 +189,8 @@ class GameObject{
 		this.y = _y;
 		this.width = 16;
 		this.height = 16;
+		this.hitboxWidth = this.width;
+		this.hitboxHeight = this.height
 		this.sprite = sprites["soul"];//this needs to be replaced or you will always be soul;
 		addToStepList(this);
 	}
@@ -204,10 +209,10 @@ class GameObject{
 	draw = function(){return;};
 	step = function(){return;};
 	checkCollision = function(a,b){
-		if(a.x+a.hitboxOffsetX>b.x-b.width/2&& //collision but fucked up
-			a.x+a.hitboxOffsetX < b.x+b.width/2&&
-			a.y+a.hitboxOffsetY>b.y-b.height/2&&
-			a.y+a.hitboxOffsetY < b.y+b.height/2){
+		if(a.x+a.hitboxOffsetX>(b.x+b.hitboxOffsetX)-b.hitboxWidth&& //collision but fucked up
+			a.x+a.hitboxOffsetX < (b.x+b.hitboxOffsetX)+b.hitboxWidth&&
+			a.y+a.hitboxOffsetY>(b.y+b.hitboxOffsetY)-b.hitboxHeight&&
+			a.y+a.hitboxOffsetY < (b.y+b.hitboxOffsetY)+b.hitboxHeight){
 				return true;
 		}
 		return false;
@@ -231,8 +236,13 @@ class Player extends GameObject{
 				this.bulletBoard = gameObjects[j];
 			} 
 		}
-		this.hitboxOffsetX = this.width/2;
-		this.hitboxOffsetY = this.height/2;
+		this.hitboxOffsetX = (this.width/2)-1;
+		this.hitboxOffsetY = (this.height/2)-1;
+		/*
+		this.hitboxOffsetX = (this.width/2)-2;
+		this.hitboxOffsetY = (this.height/2)-2;
+		this.hitboxHeight = 4;
+		this.hitboxWidth = 4;*/
 		Player.me = this;
 	}
 	step = function(){
@@ -240,7 +250,11 @@ class Player extends GameObject{
 	}
 	draw = function(){
 		this.drawSelf();
-
+		if(DEBUG){
+			var b = Player.me;
+			game.strokeStyle = "green";
+			game.strokeRect(b.x+b.hitboxOffsetX,b.y+b.hitboxOffsetY,b.hitboxWidth,b.hitboxHeight);
+		}
 	}
 
 	redMove = function(){ //red heart from undytale
@@ -450,13 +464,18 @@ class Bullet extends GameObject{
 		this.targetSpeed = 3;
 		this.speed = 3;
 		this.sprite = sprites["bullet"];
-		this.hitboxOffsetX = this.width/4;
-		this.hitboxOffsetY = this.height/4;
-		this.hitboxWidth = this.width/2;
-		this.hitboxHeight = this.height/2;
+		this.hitboxOffsetX = -this.width/8;
+		this.hitboxOffsetY = -this.width/8;
+		this.hitboxWidth = this.width/4;
+		this.hitboxHeight = this.height/4;
 	}
 	draw = function(){
-		this.rotateAndPaintImage(game,this.sprite,this.dir/Util.Rad2Deg,this.x,this.y,this.width/2,this.height/2)
+		this.rotateAndPaintImage(game,this.sprite,this.dir/Util.Rad2Deg,this.x,this.y,this.width/2,this.height/2);
+		if(DEBUG){
+			game.strokeStyle = "red";
+			var b = this;
+			game.strokeRect(b.x+b.hitboxOffsetX,b.y+b.hitboxOffsetY,b.hitboxWidth,b.hitboxHeight);
+		}
 	}
 	step = function(){
 		if(this.checkCollision(Player.me,this)){
@@ -621,7 +640,7 @@ class FightManager extends GameObject{
 	phase3 = function(_this){
 		new Bullet(400,250,0);
 	}
-	phases = [this.phase1,this.phase1,this.phase3]
+	phases = [this.phase3,this.phase1,this.phase3]
 	
 }
 class HealthBar extends GameObject{
